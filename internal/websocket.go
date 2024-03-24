@@ -1,9 +1,9 @@
-package main
+package internal
 
 import (
 	"fmt"
 	"io"
-	"net/http"
+
 	"golang.org/x/net/websocket"
 )
 
@@ -11,13 +11,13 @@ type Server struct {
 	clients map[*websocket.Conn]bool
 }
 
-func initServer() *Server {
+func InitServer() *Server {
 	return &Server{
 		clients: make(map[*websocket.Conn]bool),
 	}
 }
 
-func (s *Server) handleConnection(ws *websocket.Conn) {
+func (s *Server) HandleConnection(ws *websocket.Conn) {
 	fmt.Println("New connection from :", ws.RemoteAddr())
 	s.clients[ws] = true
 	s.readLoop(ws)
@@ -47,11 +47,4 @@ func (s *Server) broadcast(message []byte) {
 			delete(s.clients, client)
 		}
 	}
-}
-
-func main() {
-	server := initServer()
-	http.Handle("/ws", websocket.Handler(server.handleConnection))
-	fmt.Println("Starting server on localhost:3000")
-	http.ListenAndServe("localhost:3000", nil)
 }
